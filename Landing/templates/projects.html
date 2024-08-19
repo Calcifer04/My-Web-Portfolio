@@ -1,0 +1,200 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static '/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static '/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static '/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static '/site.webmanifest' %}">
+    <style>
+        :root {
+            --background-light: #fdfdfd;
+            --background-dark: #121212;
+            --color-light: #000;
+            --color-dark: #fff;
+            --scrollbar-thumb-light: #121212;
+            --scrollbar-thumb-dark: #fdfdfd;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        body.light-mode {
+            background-color: var(--background-light);
+            color: var(--color-light);
+        }
+        body.dark-mode {
+            background-color: var(--background-dark);
+            color: var(--color-dark);
+        }
+        #canvas {
+            position: absolute;
+            z-index: 2; /* Higher z-index for canvas to be on top */
+        }
+        .button {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            color: inherit;
+            background-color: transparent;
+            font-family: "PT Mono", monospace;
+            font-size: 25px;
+        }
+        .top-right-button, .top-left-button {
+            position: absolute;
+            z-index: 1;
+            cursor: pointer;
+            width: 40px; /* Adjust width and height as needed for the button */
+            height: auto;
+        }
+        .top-right-button {
+            top: 20px;
+            right: 20px;
+            z-index: 3;
+        }
+        .top-left-button {
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            padding: 5px 5px;
+            border: none;
+            color: inherit;
+            background-color: transparent;
+            font-family: "PT Mono", monospace;
+            font-size: 20px;
+            z-index: 3;
+        }
+        .pt-mono-regular {
+            font-family: "PT Mono", monospace;
+            font-weight: 500;
+            font-style: normal;
+        }
+        .blur-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(0px);
+            z-index: 0; /* In front of the canvas but behind other content */
+        }
+        @media (max-width: 768px) {
+            #canvas {
+                z-index: 0;
+            }
+            .blur-overlay {
+                backdrop-filter: blur(5px);
+            }
+        }
+        h1 {
+            z-index: 3;
+            position: center;
+            font-size: 90px;
+            left: 50%;
+        }
+        .projects-section {
+            position: relative;
+            z-index: 3;
+            width: 90%;
+            height: 50%;
+            background-color: transparent; /* Adjust opacity for transparency */
+            overflow-y: scroll;
+            padding: 20px;
+        }
+        /* Webkit scrollbar styling */
+        .projects-section::-webkit-scrollbar {
+            width: 12px;
+        }
+        .projects-section::-webkit-scrollbar-track {
+            background: inherit;
+        }
+        .projects-section::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb-light);
+            border-radius: 6px;
+            border: 3px solid var(--scrollbar-thumb-light); /* Match the background color for a blended effect */
+        }
+        body.dark-mode .projects-section::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb-dark);
+            border: 3px solid var(--scrollbar-thumb-dark);
+        }
+        p {
+            font-size: 50px;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <button class="pt-mono-regular top-left-button" onclick="toggleMode()">Light</button>
+    <img id="topRightButton" class="top-right-button" src="{% static 'navSym.png' %}" alt="Top Right Button" onclick="navigateToNav()">
+    <canvas id="canvas"></canvas>
+    <div class="blur-overlay"></div>
+    <h1 class="pt-mono-regular">Projects</h1>
+    <div class="projects-section">
+        <p class="pt-mono-regular">Online Portfolio</p>
+        <p class="pt-mono-regular">Python Task Manager</p>
+        <p class="pt-mono-regular">SQL Ebook Inventory Manager</p>
+        <p class="pt-mono-regular">NLP Movie Recommendation</p>
+        <p class="pt-mono-regular">(under-construction)</p>
+        <p class="pt-mono-regular">(under-construction)</p>
+        <p class="pt-mono-regular">(under-construction)</p>
+        <p class="pt-mono-regular">(under-construction)</p>
+        <p class="pt-mono-regular">(under-construction)</p>
+        <p class="pt-mono-regular">(under-construction)</p>
+        <p class="pt-mono-regular">(under-construction)</p>
+        <!-- Add more projects as needed -->
+    </div>
+    <script src="{% static 'warp2.js' %}"></script>
+    <script>
+        function toggleMode() {
+            const isLightMode = document.body.classList.contains('light-mode');
+            document.body.classList.toggle('dark-mode', isLightMode);
+            document.body.classList.toggle('light-mode', !isLightMode);
+            
+            localStorage.setItem('mode', isLightMode ? 'dark' : 'light');
+            updateImagesAndText(isLightMode ? 'dark' : 'light');
+        }
+        function updateImagesAndText(mode) {
+            const topRightButton = document.getElementById('topRightButton');
+            const topLeftButton = document.querySelector('.top-left-button');
+
+            if (mode === 'dark') {
+                topRightButton.src = "{% static 'navSym_inv.png' %}";
+                topLeftButton.textContent = "Dark";
+            } else {
+                topRightButton.src = "{% static 'navSym.png' %}";
+                topLeftButton.textContent = "Light";
+            }
+        }
+
+        function checkStoredMode() {
+            const mode = localStorage.getItem('mode');
+            if (mode === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                updateImagesAndText('dark');
+            } else {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+                updateImagesAndText('light');
+            }
+        }
+        function navigateToNav() {
+            window.location.href = "{% url 'nav' %}";
+        }
+        checkStoredMode();
+    </script>
+</body>
+</html>

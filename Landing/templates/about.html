@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static '/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static '/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static '/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static '/site.webmanifest' %}">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        body.light-mode {
+            background-color: #fdfdfd;
+            color: #000;
+        }
+        body.dark-mode {
+            background-color: #121212;
+            color: #fff;
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2; /* Higher z-index for canvas to be on top */
+        }
+        .titleImage {
+            z-index: 1;
+            margin-bottom: 20px; /* Space between the title image and buttons */
+            width: 60%;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Space between the buttons */
+            z-index: 1;
+        }
+        .button {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            color: inherit;
+            background-color: transparent;
+            font-family: "PT Mono", monospace;
+            font-size: 25px;
+        }
+
+        .top-right-button, .top-left-button {
+            position: absolute;
+            z-index: 1;
+            cursor: pointer;
+            width: 40px; /* Adjust width and height as needed for the button */
+            height: auto;
+        }
+        .top-right-button {
+            top: 20px;
+            right: 20px;
+            z-index: 3
+        }
+        .top-left-button {
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            padding: 5px 5px;
+            border: none;
+            color: inherit;
+            background-color: transparent;
+            font-family: "PT Mono", monospace;
+            font-size: 20px;
+            z-index: 3
+        }
+        .pt-mono-regular {
+            font-family: "PT Mono", monospace;
+            font-weight: 500;
+            font-style: normal;
+        }
+        .description {
+            z-index: 1;
+            font-family: "PT Mono", monospace;
+            font-size: 16px; /* Smaller text for the description */
+            margin-bottom: 20px; /* Space between the description and buttons */
+            text-align: center;
+            width: 300px;
+        }
+        .maintitle {
+            z-index: 1;
+            font-family: "PT Mono", monospace;
+            font-size: 18px; 
+            margin-bottom: 5px;
+            text-align: center;
+            width: 300px;
+            font-weight: 4px;
+        }
+        .blur-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            z-index: 2; /* In front of the canvas but behind other content */
+        }
+        .about-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 4; /* Ensuring it is above the blur overlay */
+        }
+        h1 {
+            z-index: 4;
+            position: flex;
+            font-size: 85px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 18px;
+            position:flex;
+            text-align: center;
+        }
+        hr {
+            z-index: 4;
+            position: absolute;
+            top: 180px; /* Adjust as needed */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%; /* Adjust width as needed */
+            border: 1px solid currentColor; /* Use current text color */
+        }
+        .hr2 {
+            margin-top: 20px; /* Space between the text and the hr2 line */
+            width: 100%; /* Adjust width as needed */
+            border: 1px solid currentColor; /* Use current text color */
+        }
+        .additional-content {
+            z-index: 4;
+            margin-top: 20px; /* Space between hr2 and the new content */
+            display: flex; /* Use flexbox to align items side by side */
+            justify-content: center; /* Center the content horizontally */
+            align-items: center; /* Center the content vertically */
+            cursor: pointer; /* Change cursor to pointer on hover */
+        }
+        .additional-content img {
+            width: 25px; /* Adjust image size */
+            height: auto;
+            margin-right: 8px; /* Space between image and text */
+        }
+        .additional-content p {
+            font-family: "PT Mono", monospace;
+            font-size: 14px; /* Adjust font size for the new text */
+            margin: 0; /* Remove default margin */
+        }
+        /* Media queries for responsive font size */
+        @media (max-width: 24000px) {
+            h2 {
+                font-size: 24px; /* Adjust font size for larger screens */
+            }
+        }
+        @media (max-width: 1800px) {
+            h2 {
+                font-size: 20px; /* Adjust font size for larger screens */
+            }
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 18px; /* Adjust font size for smaller screens */
+            }
+        }
+
+        @media (max-width: 400px) {
+            h1 {
+                z-index: 4;
+                position: absolute;
+                font-size: 60px;
+                padding-top: 40px;
+                transform: translateX(-50%);
+            }
+            h2 {
+                font-size: 14px; /* Adjust font size for very small screens */
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <canvas id="canvas"></canvas>
+    <div class="blur-overlay"></div>
+    <img id="titleImage" class="titleImage" src="{% static 'SvS.png' %}" alt="Title Image">
+    <div class="maintitle">Sebastian van Schalkwyk</div>
+    <div class="description">Designer & Developer</div>
+    <div class="button-container">
+        <button class="button pt-mono-regular">Contact</button>
+        <button class="button pt-mono-regular">About</button>
+    </div>
+    <button class="pt-mono-regular top-left-button" onclick="toggleMode()">Light</button>
+    <img id="topRightButton" class="top-right-button" src="{% static 'navSym.png' %}" alt="Top Right Button" onclick="navigateToNav()">
+    <script src="{% static 'warp1.js' %}"></script>
+    <div class="about-center">
+    <h1 class="pt-mono-regular">About</h1>
+    <hr>
+        <h2 class="pt-mono-regular">Hi. My name is Sebastian van Schalkwyk. I am a Software Engineer, Web Developer and Designer from Cape Town, South Africa. I'm also passionate about mathematics, physics and music production. New technologies and creative coding always spark my curiosity to learn more.</h2>
+        <div class="hr2"></div>
+        <div class="additional-content">
+            <img id="additionalContentImage" src="{% static 'record.png' %}" alt="Additional Content Image" onclick="navigateToCV()">
+            <p onclick="navigateToCV()">resume/cv</p>
+        </div>
+    </div>
+    <script>
+        function toggleMode() {
+            const isLightMode = document.body.classList.contains('light-mode');
+            document.body.classList.toggle('dark-mode', isLightMode);
+            document.body.classList.toggle('light-mode', !isLightMode);
+            
+            localStorage.setItem('mode', isLightMode ? 'dark' : 'light');
+            updateImagesAndText(isLightMode ? 'dark' : 'light');
+        }
+        function updateImagesAndText(mode) {
+            const titleImage = document.getElementById('titleImage');
+            const topRightButton = document.getElementById('topRightButton');
+            const topLeftButton = document.querySelector('.top-left-button');
+            const additionalContentImage = document.getElementById('additionalContentImage');
+
+            if (mode === 'dark') {
+                titleImage.src = "{% static 'SvS_inv.png' %}";
+                topRightButton.src = "{% static 'navSym_inv.png' %}";
+                additionalContentImage.src = "{% static 'record_inv.png' %}";
+                topLeftButton.textContent = "Dark";
+            } else {
+                titleImage.src = "{% static 'SvS.png' %}";
+                topRightButton.src = "{% static 'navSym.png' %}";
+                additionalContentImage.src = "{% static 'record.png' %}";
+                topLeftButton.textContent = "Light";
+            }
+        }
+
+        function checkStoredMode() {
+            const mode = localStorage.getItem('mode');
+            if (mode === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                updateImagesAndText('dark');
+            } else {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+                updateImagesAndText('light');
+            }
+        }
+        function navigateToNav() {
+            window.location.href = "{% url 'nav' %}";
+        }
+        function navigateToCV() {
+            window.location.href = "{% static 'SebastianVanSchalkwykResume.pdf' %}";
+        }
+
+        checkStoredMode();
+    </script>
+</body>
+</html>

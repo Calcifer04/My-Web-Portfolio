@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SvS</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static '/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static '/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static '/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static '/site.webmanifest' %}">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        body.light-mode {
+            background-color: #fdfdfd;
+            color: #000;
+        }
+        body.dark-mode {
+            background-color: #121212;
+            color: #fff;
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2; /* Higher z-index for canvas to be on top */
+        }
+        .titleImage {
+            z-index: 1;
+            margin-bottom: 20px; /* Space between the title image and buttons */
+            width: 60%;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Space between the buttons */
+            z-index: 3;
+        }
+        .button {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            color: inherit;
+            background-color: transparent;
+            font-family: "PT Mono", monospace;
+            font-size: 25px;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .button::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 1px;
+            background-color: currentColor;
+            transform: scaleX(0);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .button:hover::after {
+            transform: scaleX(1);
+        }
+
+        .top-right-button, .top-left-button {
+            position: absolute;
+            z-index: 1;
+            cursor: pointer;
+            width: 40px; /* Adjust width and height as needed for the button */
+            height: auto;
+        }
+        .top-right-button {
+            top: 20px;
+            right: 20px;
+            z-index: 3
+        }
+        .top-left-button {
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            padding: 5px 5px;
+            border: none;
+            color: inherit;
+            background-color: transparent;
+            font-family: "PT Mono", monospace;
+            font-size: 20px;
+            z-index: 3
+        }
+        .pt-mono-regular {
+            font-family: "PT Mono", monospace;
+            font-weight: 500;
+            font-style: normal;
+        }
+        .description {
+            z-index: 1;
+            font-family: "PT Mono", monospace;
+            font-size: 16px; /* Smaller text for the description */
+            margin-bottom: 20px; /* Space between the description and buttons */
+            text-align: center;
+            width: 300px;
+        }
+        .title {
+            z-index: 1;
+            font-family: "PT Mono", monospace;
+            font-size: 18px; 
+            margin-bottom: 5px;
+            text-align: center;
+            width: 300px;
+            font-weight: 4px;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <canvas id="canvas"></canvas>
+    <img id="titleImage" class="titleImage" src="{% static 'SvS.png' %}" alt="Title Image">
+    <div class="title">Sebastian van Schalkwyk</div>
+    <div class="description">Designer & Developer</div>
+    <div class="button-container">
+        <button class="button pt-mono-regular">Projects</button>
+        <button onclick="navigateToAbout()" class="button pt-mono-regular">About</button>
+    </div>
+    <button class="pt-mono-regular top-left-button" onclick="toggleMode()">Light</button>
+    <img id="topRightButton" class="top-right-button" src="{% static 'navSym.png' %}" alt="Top Right Button" onclick="navigateToNav()">
+    <script src="{% static 'warp1.js' %}"></script>
+    <script>
+        function toggleMode() {
+            const isLightMode = document.body.classList.contains('light-mode');
+            document.body.classList.toggle('dark-mode', isLightMode);
+            document.body.classList.toggle('light-mode', !isLightMode);
+            
+            localStorage.setItem('mode', isLightMode ? 'dark' : 'light');
+            updateImagesAndText(isLightMode ? 'dark' : 'light');
+        }
+
+        function updateImagesAndText(mode) {
+            const titleImage = document.getElementById('titleImage');
+            const topRightButton = document.getElementById('topRightButton');
+            const topLeftButton = document.querySelector('.top-left-button');
+
+            if (mode === 'dark') {
+                titleImage.src = "{% static 'SvS_inv.png' %}";
+                topRightButton.src = "{% static 'navSym_inv.png' %}";
+                topLeftButton.textContent = "Dark";
+            } else {
+                titleImage.src = "{% static 'SvS.png' %}";
+                topRightButton.src = "{% static 'navSym.png' %}";
+                topLeftButton.textContent = "Light";
+            }
+        }
+
+        function checkStoredMode() {
+            const mode = localStorage.getItem('mode');
+            if (mode === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                updateImagesAndText('dark');
+            } else {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+                updateImagesAndText('light');
+            }
+        }
+
+        function navigateToNav() {
+            window.location.href = "more/";
+        }
+        function navigateToAbout() {
+            window.location.href = "about/";
+        }
+
+        checkStoredMode();
+    </script>
+</body>
+</html>

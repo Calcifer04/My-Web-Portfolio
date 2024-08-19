@@ -1,0 +1,73 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    transition: background-color 0.5s, color 0.5s;
+}
+body.light-mode {
+    background-color: #fdfdfd;
+    color: #000;
+}
+body.dark-mode {
+    background-color: #121212;
+    color: #fff;
+}
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2; /* Higher z-index for canvas to be on top */
+}
+.titleImage {
+    z-index: 1;
+    margin-bottom: 20px; /* Space between the title image and buttons */
+}
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Space between the buttons */
+    z-index: 1;
+}
+.button {
+    cursor: pointer;
+    padding: 10px 20px;
+    border: none;
+    color: inherit;
+    background-color: transparent;
+    font-family: "PT Mono", monospace;
+    font-size: 30px;
+
+}
+
+.top-right-button, .top-left-button {
+    position: absolute;
+    z-index: 1;
+    cursor: pointer;
+    width: 40px; /* Adjust width and height as needed for the button */
+    height: auto;
+}
+.top-right-button {
+    top: 20px;
+    right: 20px;
+}
+.top-left-button {
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    padding: 5px 5px;
+    border: none;
+    color: inherit;
+    background-color: transparent;
+    font-family: "PT Mono", monospace;
+    font-size: 20px;
+}
+.pt-mono-regular {
+    font-family: "PT Mono", monospace;
+    font-weight: 500;
+    font-style: normal;
+}

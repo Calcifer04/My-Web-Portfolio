@@ -1,0 +1,250 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static '/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static '/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static '/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static '/site.webmanifest' %}">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        body.light-mode {
+            background-color: #fdfdfd;
+            color: #000;
+        }
+        body.dark-mode {
+            background-color: #121212;
+            color: #fff;
+        }
+        #canvas {
+            position: absolute;
+            z-index: 2; /* Higher z-index for canvas to be on top */
+        }
+        .button {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            color: inherit;
+            background-color: transparent;
+            font-family: "PT Mono", monospace;
+            font-size: 25px;
+        }
+
+        .top-right-button, .top-left-button {
+            position: absolute;
+            z-index: 1;
+            cursor: pointer;
+            width: 40px; /* Adjust width and height as needed for the button */
+            height: auto;
+        }
+        .top-right-button {
+            top: 20px;
+            right: 20px;
+            z-index: 3
+        }
+        .top-left-button {
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            padding: 5px 5px;
+            border: none;
+            color: inherit;
+            background-color: transparent;
+            font-family: "PT Mono", monospace;
+            font-size: 20px;
+            z-index: 3
+        }
+        .pt-mono-regular {
+            font-family: "PT Mono", monospace;
+            font-weight: 500;
+            font-style: normal;
+        }
+        h1 {
+            z-index: 3;
+            position: relative;
+            font-size: 90px;
+            transform: translateX(-50%);
+            left: 50%;
+        }
+        hr {
+            z-index: 3;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%; /* Adjust width as needed */
+            border: 1px solid currentColor; /* Use current text color */
+        }
+        .hr2 {
+            margin-top: 20px; /* Space between the text and the hr2 line */
+            width: 100%; /* Adjust width as needed */
+            border: 1px solid currentColor; /* Use current text color */
+            z-index: 3;
+        }
+        .contact-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            cursor: pointer;
+            z-index: 3;
+        }
+        .contact-item img {
+            margin-right: 10px;
+            width: 24px; /* Adjust icon size as needed */
+            height: 24px;
+            z-index: 3;
+        }
+        .contact-item span {
+            font-family: "PT Mono", monospace;
+            font-size: 16px;
+            z-index: 3;
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+        }
+        .contact-item img.phone-icon {
+            width: 18px; /* Adjust width as needed */
+        }
+        .blur-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(0px);
+            z-index: 0; /* In front of the canvas but behind other content */
+        }
+        @media (max-width: 768px) {
+            #canvas {
+                z-index: 0;
+            }
+            .blur-overlay {
+                backdrop-filter: blur(5px);
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <button class="pt-mono-regular top-left-button" onclick="toggleMode()">Light</button>
+    <img id="topRightButton" class="top-right-button" src="{% static 'navSym.png' %}" alt="Top Right Button" onclick="navigateToNav()">
+    <div class="contact-section">
+        <h1 class="pt-mono-regular">Contact</h1>
+        <hr>
+        <div class="contact-item">
+            <img id="mailIcon" src="{% static 'mail.png' %}" alt="Mail Icon" onclick="copyMail()">
+            <span onclick="copyMail()">sebastian.vanschalkwyk@gmail.com</span>
+        </div>
+        <div class="contact-item">
+            <img id="phoneIcon" src="{% static 'phone.png' %}" alt="Phone Icon" class="phone-icon" onclick="copyPhone()">
+            <span onclick="copyPhone()">+27 061 764 5712</span>
+        </div>
+        <div class="contact-item">
+            <img id="linkedinIcon" src="{% static 'linkedin.png' %}" alt="Linkedin Icon" onclick="navigateToLinkedin()">
+            <span onclick="navigateToLinkedin()">LinkedIn</span>
+        </div>
+        <div class="contact-item">
+            <img id="githubIcon"src="{% static 'github.png' %}" alt="Github Icon" onclick="navigateToGithub()">
+            <span onclick="navigateToGithub()">GitHub</span>
+        </div>
+        <div class="hr2"></div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div class="blur-overlay"></div>
+    <script src="{% static 'warp2.js' %}"></script>
+    <script>
+        function toggleMode() {
+            const isLightMode = document.body.classList.contains('light-mode');
+            document.body.classList.toggle('dark-mode', isLightMode);
+            document.body.classList.toggle('light-mode', !isLightMode);
+            
+            localStorage.setItem('mode', isLightMode ? 'dark' : 'light');
+            updateImagesAndText(isLightMode ? 'dark' : 'light');
+        }
+        function updateImagesAndText(mode) {
+            const topRightButton = document.getElementById('topRightButton');
+            const topLeftButton = document.querySelector('.top-left-button');
+            const mailIcon = document.getElementById('mailIcon');
+            const phoneIcon = document.getElementById('phoneIcon');
+            const linkedinIcon = document.getElementById('linkedinIcon');
+            const githubIcon = document.getElementById('githubIcon');
+
+            if (mode === 'dark') {
+                topRightButton.src = "{% static 'navSym_inv.png' %}";
+                mailIcon.src = "{% static 'mail_inv.png' %}";
+                phoneIcon.src = "{% static 'phone_inv.png' %}";
+                linkedinIcon.src = "{% static 'linkedin_inv.png' %}";
+                githubIcon.src = "{% static 'github_inv.png' %}";
+                topLeftButton.textContent = "Dark";
+            } else {
+                topRightButton.src = "{% static 'navSym.png' %}";
+                mailIcon.src = "{% static 'mail.png' %}";
+                phoneIcon.src = "{% static 'phone.png' %}";
+                linkedinIcon.src = "{% static 'linkedin.png' %}";
+                githubIcon.src = "{% static 'github.png' %}";
+                topLeftButton.textContent = "Light";
+            }
+        }
+
+        function checkStoredMode() {
+            const mode = localStorage.getItem('mode');
+            if (mode === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                updateImagesAndText('dark');
+            } else {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+                updateImagesAndText('light');
+            }
+        }
+        function navigateToNav() {
+            window.location.href = "{% url 'nav' %}";
+        }
+        function navigateToGithub() {
+            window.location.href = "https://github.com/Calcifer04";
+        }
+        function navigateToLinkedin() {
+            window.location.href = "https://www.linkedin.com/in/sebastian-van-schalkwyk/";
+        }
+
+        function copyMail() {
+            const text = 'sebastian.vanschalkwyk@gmail.com';
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Email address copied!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+        function copyPhone() {
+            const text = '+27 061 764 5712';
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Phone number copied!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        checkStoredMode();
+    </script>
+</body>
+</html>
